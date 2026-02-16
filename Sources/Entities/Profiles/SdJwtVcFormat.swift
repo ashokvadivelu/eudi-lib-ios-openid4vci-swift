@@ -307,7 +307,11 @@ public extension SdJwtVcFormat {
       self.proofTypesSupported = json["proof_types_supported"].dictionaryObject?.compactMapValues { values in
         if let types = values as? [String: Any],
            let algorithms = types["proof_signing_alg_values_supported"] as? [String] {
-          let requirement = types["key_attestations_required"]
+            guard let requirement = types["key_attestations_required"] else {
+                return .init(
+                  algorithms: algorithms,
+                  keyAttestationRequirement: .notRequired)
+            }
           return .init(
             algorithms: algorithms,
             keyAttestationRequirement: try? .init(json: JSON(requirement ?? [:]))
